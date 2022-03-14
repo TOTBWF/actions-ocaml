@@ -1,0 +1,44 @@
+name: "GitHub Action for red* OCaml packages"
+description: "Workflow shared by all red* OCaml packages for building, testing, and documentation updates"
+inputs:
+  ocaml-compiler:
+    description: "OCaml Compiler Version"
+    required: true
+  build-doc:
+    description: "Whether to build package documentation"
+    required: false
+    default: false
+  publish-doc-if-built:
+    description: "Whether to publish package documentation"
+    required: false
+    default: ${{ github.ref == 'refs/heads/main' }}
+  github-token:
+    description: "GitHub token"
+    required: false
+    default: ${{ github.token }}
+runs:
+  using: "composite"
+  steps:
+    - name: "Set up OCaml"
+      uses: ocaml/setup-ocaml@v2
+      with:
+        ocaml-compiler: ${{ inputs.ocaml-compiler }}
+    - name: "Fix OPAM repo for OCaml 5"
+      if: ${{ inputs.ocaml-compiler == 'ocaml-variants.5.0.0+trunk' }}
+      shell: sh
+      run: opam repo add alpha git+https://github.com/kit-ty-kate/opam-alpha-repository.git
+    - name: "Build and test the package"
+      shell: sh
+      run: opam install . --with-test --yes
+    - name: "Build the documentation"
+      if: ${{ inputs.build-doc == 'true' }}
+      shell: sh
+      run: |
+        opam install . --with-doc --deps-only --yes
+        opam exec -- dune build @doc
+    - name: "Publish the documentation"
+      if: ${{ inputs.build-doc == 'true' && inputs.publish-doc-if-built == 'true' }}
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        github_token: ${{ inputs.github-token }}
+        publish_dir: "./_build/default/_doc/_html/"
