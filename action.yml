@@ -29,13 +29,17 @@ runs:
       run: opam repo add alpha git+https://github.com/kit-ty-kate/opam-alpha-repository.git --verbose
     - name: "Build and test the package"
       shell: sh
-      run: opam install --with-test --yes --verbose .
-    - name: "Build the documentation"
-      if: ${{ inputs.build-doc == 'true' }}
-      shell: sh
       run: |
-        opam install --with-doc --deps-only --yes --verbose .
-        opam exec -- dune build @doc
+        if ${{ inputs.build-doc == 'true' }}; then
+          opam install --with-test --with-doc --deps-only --yes --verbose .
+          opam exec -- dune build
+          opam exec -- dune runtest
+          opam exec -- dune build @doc
+        else
+          opam install --with-test --yes --deps-only --verbose .
+          opam exec -- dune build
+          opam exec -- dune runtest
+        fi
     - name: "Publish the documentation"
       if: ${{ inputs.build-doc == 'true' && inputs.publish-doc-if-built == 'true' }}
       uses: peaceiris/actions-gh-pages@v3
