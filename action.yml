@@ -11,7 +11,7 @@ inputs:
   publish-doc-if-built:
     description: "Whether to publish package documentation"
     required: false
-    default: ${{ github.ref == 'refs/heads/main' }}
+    default: true
   github-token:
     description: "GitHub token"
     required: false
