@@ -29,12 +29,12 @@ runs:
       run: opam repo add alpha git+https://github.com/kit-ty-kate/opam-alpha-repository.git
     - name: "Build and test the package"
       shell: sh
-      run: opam install . --with-test --yes
+      run: opam install --with-test --yes .
     - name: "Build the documentation"
       if: ${{ inputs.build-doc == 'true' }}
       shell: sh
       run: |
-        opam install . --with-doc --deps-only --yes
+        opam install --with-doc --deps-only --yes .
         opam exec -- dune build @doc
     - name: "Publish the documentation"
       if: ${{ inputs.build-doc == 'true' && inputs.publish-doc-if-built == 'true' }}
