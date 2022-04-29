@@ -12,6 +12,10 @@ inputs:
     description: "Whether to publish package documentation"
     required: false
     default: true
+  cache-prefix:
+    description: "The cache-prefix passed to the setup-ocaml action"
+    required: false
+    default: "v1"
   github-token:
     description: "GitHub token"
     required: false
@@ -23,6 +27,7 @@ runs:
       uses: ocaml/setup-ocaml@v2
       with:
         ocaml-compiler: ${{ inputs.ocaml-compiler }}
+        cache-prefix: ${{ inputs.cache-prefix }}
     - name: "Fix OPAM repo for OCaml 5"
       if: ${{ inputs.ocaml-compiler == 'ocaml-variants.5.0.0+trunk' }}
       shell: sh
