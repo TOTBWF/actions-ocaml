@@ -4,7 +4,11 @@ inputs:
   ocaml-compiler:
     description: "OCaml Compiler Version"
     required: true
-  build-doc:
+  with-test:
+    description: "Whether to test the package"
+    required: false
+    default: true
+  with-doc:
     description: "Whether to build package documentation"
     required: false
     default: false
@@ -27,21 +31,22 @@ runs:
       if: ${{ inputs.ocaml-compiler == 'ocaml-variants.5.0.0+trunk' }}
       shell: sh
       run: opam repo add alpha git+https://github.com/kit-ty-kate/opam-alpha-repository.git --verbose
-    - name: "Build and test the package"
+    - name: "Install the dependencies"
       shell: sh
-      run: |
-        if ${{ inputs.build-doc == 'true' }}; then
-          opam install --with-test --with-doc --deps-only --yes --verbose .
-          opam exec -- dune build
-          opam exec -- dune runtest
-          opam exec -- dune build @doc
-        else
-          opam install --with-test --yes --deps-only --verbose .
-          opam exec -- dune build
-          opam exec -- dune runtest
-        fi
+      run: opam install ${{inputs.with-test == 'true' && '--with-test' || ''}} ${{inputs.with-doc == 'true' && '--with-doc' || ''}} --deps-only --yes --verbose .
+    - name: "Build the package"
+      shell: sh
+      run: opam exec -- dune build
+    - name: "Test the package"
+      if: ${{ inputs.with-test == 'true' }}
+      shell: sh
+      run: opam exec -- dune runtest
+    - name: "Build the documentation"
+      if: ${{ inputs.with-doc == 'true' }}
+      shell: sh
+      run: opam exec -- dune build @doc
     - name: "Publish the documentation"
-      if: ${{ inputs.build-doc == 'true' && inputs.publish-doc-if-built == 'true' }}
+      if: ${{ inputs.with-doc == 'true' && inputs.publish-doc-if-built == 'true' }}
       uses: peaceiris/actions-gh-pages@v3
       with:
         github_token: ${{ inputs.github-token }}
