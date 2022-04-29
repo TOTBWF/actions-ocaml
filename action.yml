@@ -4,10 +4,6 @@ inputs:
   ocaml-compiler:
     description: "OCaml Compiler Version"
     required: true
-  with-test:
-    description: "Whether to test the package"
-    required: false
-    default: true
   with-doc:
     description: "Whether to build package documentation"
     required: false
@@ -33,12 +29,11 @@ runs:
       run: opam repo add alpha git+https://github.com/kit-ty-kate/opam-alpha-repository.git --verbose
     - name: "Install the dependencies"
       shell: sh
-      run: opam install ${{inputs.with-test == 'true' && '--with-test' || ''}} ${{inputs.with-doc == 'true' && '--with-doc' || ''}} --deps-only --yes --verbose .
+      run: opam install --with-test ${{inputs.with-doc == 'true' && '--with-doc' || ''}} --deps-only --yes --verbose .
     - name: "Build the package"
       shell: sh
       run: opam exec -- dune build
     - name: "Test the package"
-      if: ${{ inputs.with-test == 'true' }}
       shell: sh
       run: opam exec -- dune runtest
     - name: "Build the documentation"
