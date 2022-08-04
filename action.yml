@@ -1,5 +1,8 @@
 name: "GitHub Action for red* OCaml packages"
 description: "Workflow shared by all red* OCaml packages for building, testing, and documentation updates"
+branding:
+  icon: "box"
+  color: "red"
 inputs:
   ocaml-compiler:
     description: "OCaml Compiler Version"
