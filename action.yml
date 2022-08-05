@@ -28,6 +28,7 @@ runs:
   env:
     IS_OCAML_5: ${{ startsWith(inputs.ocaml-compiler, 'ocaml-variants.5') || startsWith(inputs.ocaml-compiler, 'ocaml-base-compiler.5') || startsWith(inputs.ocaml-compiler, '5') }}
   steps:
+    - name: "Set up OCaml"
       uses: ocaml/setup-ocaml@v2
       with:
         ocaml-compiler: ${{ inputs.ocaml-compiler }}
