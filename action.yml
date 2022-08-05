@@ -25,9 +25,11 @@ inputs:
     default: ${{ github.token }}
 runs:
   using: "composite"
-  env:
-    IS_OCAML_5: ${{ startsWith(inputs.ocaml-compiler, 'ocaml-variants.5') || startsWith(inputs.ocaml-compiler, 'ocaml-base-compiler.5') || startsWith(inputs.ocaml-compiler, '5') }}
   steps:
+    - name: "Detect OCaml 5"
+      shell: sh
+      run: |
+        echo "IS_OCAML_5=${{ startsWith(inputs.ocaml-compiler, 'ocaml-variants.5') || startsWith(inputs.ocaml-compiler, 'ocaml-base-compiler.5') || startsWith(inputs.ocaml-compiler, '5') }}" >> $GITHUB_ENV
     - name: "Set up OCaml"
       uses: ocaml/setup-ocaml@v2
       with:
