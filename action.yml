@@ -25,16 +25,16 @@ inputs:
     default: ${{ github.token }}
 runs:
   using: "composite"
+  env:
+    IS_OCAML_5: ${{ startsWith(inputs.ocaml-compiler, 'ocaml-variants.5') || startsWith(inputs.ocaml-compiler, 'ocaml-base-compiler.5') || startsWith(inputs.ocaml-compiler, '5') }}
   steps:
-    - name: "Set up OCaml"
       uses: ocaml/setup-ocaml@v2
       with:
         ocaml-compiler: ${{ inputs.ocaml-compiler }}
         cache-prefix: ${{ inputs.cache-prefix }}
-    - name: "Fix OPAM repo for OCaml 5"
-      if: ${{ startsWith(inputs.ocaml-compiler, 'ocaml-variants.5') || startsWith(inputs.ocaml-compiler, 'ocaml-base-compiler.5') || startsWith(inputs.ocaml-compiler, '5') }}
-      shell: sh
-      run: opam repo add alpha git+https://github.com/kit-ty-kate/opam-alpha-repository.git --verbose
+        opam-repositories: |
+          default: https://opam.ocaml.org
+          ${{ env.IS_OCAML_5 && 'alpha: git+https://github.com/kit-ty-kate/opam-alpha-repository.git' || '' }}
     - name: "Install the dependencies"
       shell: sh
       run: opam install --with-test ${{inputs.with-doc == 'true' && '--with-doc' || ''}} --deps-only --yes --verbose .
