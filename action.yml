@@ -37,7 +37,9 @@ runs:
         cache-prefix: ${{ inputs.cache-prefix }}
         opam-repositories: |
           default: https://opam.ocaml.org
-          ${{ env.IS_OCAML_5 && 'alpha: git+https://github.com/kit-ty-kate/opam-alpha-repository.git' || '' }}
+          # HACK: When we read the IS_OCAML_5 environment variable, it gets interpreted as a string,
+          # not a boolean. Therefore, we have to do an equality check against the string 'true' here.
+          ${{ env.IS_OCAML_5 == 'true' && 'alpha: git+https://github.com/kit-ty-kate/opam-alpha-repository.git' || '' }}
     - name: "Install the dependencies"
       shell: sh
       run: opam install --with-test ${{inputs.with-doc == 'true' && '--with-doc' || ''}} --deps-only --yes --verbose .
